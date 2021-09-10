@@ -8,7 +8,7 @@ contract MyContract{
     
     // player structure
     struct Player{
-        // address id; // uncomment only for deployment
+        address payable address_player; // uncomment only for deployment
         uint id; // Comment this during deployment
         uint256 balance;
         bool active;
@@ -41,16 +41,16 @@ contract MyContract{
     //////////////////// Critical Functions /////////////////////////
     
     // uncomment only for deployment
-    // event Registration(string);
-    // function addPlayer(address player_address) private {
-    //     incrementCount();
-    //     Players[peopleCount] = Player(player_address, 1000);
-    // }
-    
-    function addPlayer() public {
+    event Registration(string);
+    function addPlayer(address payable player_address) private {
         incrementCount();
-        Players[peopleCount] = Player(peopleCount, 130, true, 0);
+        Players[peopleCount] = Player(player_address, peopleCount , 1000, true, 0);
     }
+    
+    // function addPlayer() public {
+    //     incrementCount();
+    //     Players[peopleCount] = Player(peopleCount, 130, true, 0);
+    // }
     
     
     function addToken() public{
@@ -73,7 +73,7 @@ contract MyContract{
         }
     }
     
-    function activate_token (uint token_index) public {
+    function activate_token (uint token_index) private {
         allocate_Token_to_player(token_index, true);
         Tokens[token_index].active = true;
     }
@@ -166,45 +166,48 @@ contract MyContract{
         }
         return sum;
     }
-    event this_is_not_happening(string);
-    uint256 public deserved_amount = 10;
+
+    
     function split_pool () internal {
         uint256 living_total = living_sum();
-        // uint256 deserved_amount = 0;
-        // emit this_is_not_happening("This is not happening!");
+        uint256 deserved_amount = 0;
+
         if (living_total > 0){
-            // emit this_is_not_happening("This is not happening twice!");
             for (uint i = 1; i <= peopleCount; i++){
-                // emit this_is_not_happening("This is not happening ttt!");
                 if (Players[i].active == true){
-                    emit this_is_not_happening("This is not happening ffff!");
                     deserved_amount = current_pool * Players[i].total_payment / living_total;
-                    Players[i].balance += deserved_amount;
+                    //Players[i].balance += deserved_amount;
+                    uint256 value = Players[i].balance*1000 + deserved_amount*900 gwei;
+                    Players[i].address_player.transfer(value);
                 }
             }
         }
     }
 
-    // Uncomment only for deployment
-    //Register funciton, reqires real eth to join 
-    // function Register() external payable{
-    //     require(msg.value == 1 ether, "Incorrect amount"); 
-    //     emit Registration("Registration success, you have now joined the game!");
-    //     addPlayer(msg.sender);
+
+    function Register() external payable{
+        require(msg.value == 1000000 gwei, "Incorrect amount"); 
+        require(check_player_index() == 0,"You can only register once");
+        emit Registration("Registration success, you have now joined the game!");
+        addPlayer(payable(msg.sender));
+    }
+    function check_balance() public view returns(uint256){
+        return Players[check_player_index()].balance;
+    }
+    function check_player_index()private view returns(uint32){
+        for(uint32 i=1;i<peopleCount+1;i++){
+            if (Players[i].address_player ==msg.sender){
+                return i;
+            }
+        }
+        return 0;
+    }
+    // function getContractBalance() public view returns (uint256) { //view amount of ETH the contract contains
+    //     return address(this).balance;
     // }
-    // Uncomment only for deployment
-    // function check_balance() public view returns(uint256){
-    //     return Players[check_player_index()].balance;
+    // function getmyBalance() public view returns (uint256) { //view amount of ETH the contract contains
+    //     return msg.sender.balance;
     // }
-    // function check_player_index()private view returns(uint32){
-    //     for(uint32 i=1;i<peopleCount+1;i++){
-    //         if (Players[i].id ==msg.sender){
-    //             return i;
-    //         }
-    //     }
-    //     return 0;
-    // }
-    // Uncomment only for deployment
     // function pay_transfer(uint256 amount)public{
     //     uint32 index =check_player_index();
     //     require(Players[index].balance>=amount,"Insufficient funds");
