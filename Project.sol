@@ -59,8 +59,9 @@ contract MyContract{
     
     function token_transfer (uint token_index) public {
         require(msg.sender == Players[Tokens[token_index].id].address_player, "You cannot transfer token that does not belong to u");
+        
         // randomally generate a number to deduct the amonut of balance from user
-        uint random_number = (uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, token_index))) % 60) + 1;
+        uint random_number = (uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, token_index))) % 30) + 1;
         uint total_payment = 10 * random_number + block.timestamp - Tokens[token_index].timestamp_when_received; // add in time-panelty payment
         
         // update token timestamp
@@ -73,11 +74,6 @@ contract MyContract{
             split_pool();
         }
     }
-    
-    // function activate_token (uint token_index) private {
-    //     allocate_Token_to_player(token_index, true);
-    //     Tokens[token_index].active = true;
-    // }
     
     function winner_winner_chicken_breakfast () public{
         if (is_it_game_over() == true){
@@ -94,6 +90,7 @@ contract MyContract{
             uint time_panelty_payment = 10 * (block.timestamp - Tokens[i].timestamp_when_received);
             uint current_balance = Players[Tokens[i].id].balance;
             if (current_balance <= time_panelty_payment){
+                
                 // deactivate token and player
                 Players[Tokens[i].id].total_payment += Players[Tokens[i].id].balance; // keep track of how much the player has put into the pool
                 current_pool += Players[Tokens[i].id].balance;
@@ -104,14 +101,6 @@ contract MyContract{
         }
     }
     
-    // function check_if_i_have_token () public view returns (uint the_token_index){
-    //     for (uint i = 1; i <= tokenCount; i += 1){
-    //         if (Players[i].address_player == msg.sender){
-    //             the_token_index = Players[i].token_id;
-    //             return the_token_index;
-    //         }
-    //     }
-    // }
     
     function check_token (uint token_id_to_check) public view returns (bool Active){
         if (token_id_to_check <= tokenCount){
@@ -251,9 +240,6 @@ contract MyContract{
         addPlayer(payable(msg.sender));
     }
     
-    // function check_balance() public view returns(uint256){
-    //     return Players[check_player_index()].balance;
-    // }
     
     function check_player_index()private view returns(uint32){
         for(uint32 i=1;i<peopleCount+1;i++){
@@ -263,19 +249,7 @@ contract MyContract{
         }
         return 0;
     }
-    // function getContractBalance() public view returns (uint256) { //view amount of ETH the contract contains
-    //     return address(this).balance;
-    // }
-    // function getmyBalance() public view returns (uint256) { //view amount of ETH the contract contains
-    //     return msg.sender.balance;
-    // }
-    // function pay_transfer(uint256 amount)public{
-    //     uint32 index =check_player_index();
-    //     require(Players[index].balance>=amount,"Insufficient funds");
-    //     Players[index].balance-=amount;
-    //     Players_Records[index].total_payment += amount;
-    //     current_pool+=amount;
-    // }
+
     
     //////////////////// helper Functions End /////////////////////////
     
