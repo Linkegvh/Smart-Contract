@@ -56,7 +56,6 @@ contract MyContract{
         }
     }
     
-    
     function token_transfer (uint token_index) public {
         require(msg.sender == Players[Tokens[token_index].id].address_player, "You cannot transfer token that does not belong to u");
         
@@ -81,6 +80,33 @@ contract MyContract{
             uint256 payout_amount = Players[player_id].balance * 1000000 gwei;
             Players[player_id].address_player.transfer(payout_amount);
             Players[player_id].balance = 0;
+        }
+    }
+    
+    function game_reset() public {
+        if (is_it_game_over() == true){
+            for (uint player_id = 1; player_id <= peopleCount; player_id += 1){
+                
+                // payout all the unpaid players
+                if (Players[player_id].balance > 0){
+                    uint256 payout_amount = Players[player_id].balance * 1000000 gwei;
+                    Players[player_id].address_player.transfer(payout_amount);
+                    Players[player_id].balance = 0;
+                }
+                
+                // delete all players
+                delete Players[player_id];
+            }
+            
+            for (uint token_id = 1; token_id <= tokenCount; token_id += 1){
+                // delete all current tokens
+                delete Tokens[token_id];
+            }
+            
+            // reset people count and token count
+            peopleCount = 0;
+            tokenCount = 0;
+            
         }
     }
     
